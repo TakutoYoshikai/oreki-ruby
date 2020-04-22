@@ -41,10 +41,33 @@ class Oreki
     @started = false
   end
 
+  def add_payment(user_id, endpoint, point, price)
+    uri = URI.parse(@config["host"])
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = uri.scheme == "https"
+    req = Net::HTTP::Post.new(uri.request_uri + "payment")
+    req["Content-Type"] = "application/json"
+    json = {
+      "user_id" => user_id,
+      "endpoint" => endpoint,
+      "point" => point,
+      "price" => price,
+      "password" => @config["password"]
+    }.to_json
+    req.body = json
+    res = http.request(req)
+    if res.code.to_i != 200
+      puts res.code
+      return nil
+    end
+    res_json = JSON.parse(res.body)
+    payment = res_json["payment"]
+    return payment
+  end
   def check_transactions
     uri = URI.parse(@config["host"])
     http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = uri.protocol == "https"
+    http.use_ssl = uri.scheme == "https"
     req = Net::HTTP::Post.new(uri.request_uri)
     req["Content-Type"] = "application/json"
     json = {
@@ -52,8 +75,8 @@ class Oreki
     }.to_json
     req.body = json
     res = http.request(req)
-    resJson = JSON.parse(res.body)
-    payments = resJson["payments"]
+    res_json = JSON.parse(res.body)
+    payments = res_json["payments"]
     payments.each do |payment|
       self.emit("paid", payment)
     end

@@ -21,5 +21,16 @@ class TestOreki < Test::Unit::TestCase
       assert true
     end
     oreki.on("paid", method(:callback))
+    oreki.check_transactions
+  end
+
+  def test_addpayment
+    oreki = Oreki.new("./config.json")
+    payment = oreki.add_payment("user", "endpoint", 10, 100)
+    puts payment
+    if payment == nil
+      assert false
+    end
+    assert true
   end
 end
