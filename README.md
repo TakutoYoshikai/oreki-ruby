@@ -20,3 +20,11 @@ def callback(payment)
 end
 oreki.on("paid", method(:callback))
 ```
+### start check
+```
+oreki.start
+```
+### stop check
+```
+oreki.stop
+```
