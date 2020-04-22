@@ -10,8 +10,16 @@ class TestOreki < Test::Unit::TestCase
       end
       assert false
     end
-    oreki = Oreki.new
+    oreki = Oreki.new("./config.json")
     oreki.on("event", method(:callback))
     oreki.emit("event", "data")
+  end
+
+  def test_checktransaction
+    oreki = Oreki.new("./config.json")
+    def callback(payment)
+      assert true
+    end
+    oreki.on("paid", method(:callback))
   end
 end
