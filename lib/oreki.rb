@@ -42,43 +42,47 @@ class Oreki
   end
 
   def add_payment(user_id, endpoint, point, price)
-    uri = URI.parse(@config["host"])
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = uri.scheme == "https"
-    req = Net::HTTP::Post.new(uri.request_uri + "payment")
-    req["Content-Type"] = "application/json"
-    json = {
+    url = @config["host"] + "/payment"
+    res_json = send_request(url, {
       "user_id" => user_id,
       "endpoint" => endpoint,
       "point" => point,
       "price" => price,
       "password" => @config["password"]
-    }.to_json
-    req.body = json
-    res = http.request(req)
-    if res.code.to_i != 200
-      puts res.code
+    })
+    if res_json == nil
       return nil
     end
-    res_json = JSON.parse(res.body)
     payment = res_json["payment"]
     return payment
   end
   def check_transactions
-    uri = URI.parse(@config["host"])
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = uri.scheme == "https"
-    req = Net::HTTP::Post.new(uri.request_uri)
-    req["Content-Type"] = "application/json"
-    json = {
+    res_json = send_request(@config["host"], {
       "password" => @config["password"]
-    }.to_json
-    req.body = json
-    res = http.request(req)
-    res_json = JSON.parse(res.body)
+    })
+    if res_json == nil
+      return
+    end
     payments = res_json["payments"]
     payments.each do |payment|
       self.emit("paid", payment)
     end
+  end
+
+  private
+  def send_request(url, data)
+    uri = URI.parse(url)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = uri.scheme == "https"
+    req = Net::HTTP::Post.new(uri.request_uri)
+    req["Content-Type"] = "application/json"
+    json = data.to_json
+    req.body = json
+    res = http.request(req)
+    if res.code.to_i != 200
+      return nil
+    end
+    res_json = JSON.parse(res.body)
+    return res_json
   end
 end
