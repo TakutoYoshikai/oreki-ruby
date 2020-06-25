@@ -11,7 +11,7 @@ oreki = Oreki.new("/path/to/config.json")
 ### add payment
 ```
 payment = oreki.add_payment(<user_id: string>, <endpoint_id: string>, <point: int>, <price: int>)
-#payment.address: bitcoin address
+#payment.payee: bitcoin invoice or ethereum address
 ```
 ### register event of getting coin
 ```

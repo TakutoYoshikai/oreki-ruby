@@ -6,6 +6,6 @@ def paid(payment)
 end
 oreki.on("paid", method(:paid))
 payment = oreki.add_payment("user", "endpoint", 10, 100)
-puts payment["address"]
-#addressに送金した後、ブロックが取り込まれるとpaidが呼ばれる
+puts payment["payee"]
+#payeeに送金した後、ブロックが取り込まれるとpaidが呼ばれる
 oreki.start
